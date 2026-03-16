@@ -15,14 +15,14 @@ jobs:
     name: Syntax Check
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Check Ruby syntax
         run: ruby -c brew-no-quarantine
   lint:
     name: RuboCop Lint
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -38,7 +38,7 @@ jobs:
       HOMEBREW_NO_INSTALL_CLEANUP: "1"
       HOMEBREW_NO_ENV_HINTS: "1"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Update Homebrew
         run: brew update
       - name: Run integration tests
