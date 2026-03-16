@@ -11,7 +11,7 @@ This script behaves exactly like the standard `brew` command for almost all oper
 
 ## How to use
 
-1. Place the `brew-no-quarantine` script somewhere in your `$PATH`.
+1. Place the [`bin/brew-no-quarantine`](bin/brew-no-quarantine) script somewhere in your `$PATH`.
 2. Make it executable: `chmod +x brew-no-quarantine`.
 3. Source the desired shell completion script for your environment (Bash, Zsh, or Fish) from the `completions/` folder.
 4. Run `brew-no-quarantine install <cask-name>`, `brew-no-quarantine upgrade`, etc. as you normally would with Homebrew!
