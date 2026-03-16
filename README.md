@@ -9,12 +9,23 @@ This script behaves exactly like the standard `brew` command for almost all oper
 2. It executes the standard `brew` command.
 3. If the applications were successfully downloaded, modified, or updated, the script automatically triggers `xattr -cr /path/to/App.app` to strip the quarantine attributes, bypassing the "App is damaged and can't be opened" or "Apple could not verify this app is free from malware" prompts on first launch.
 
-## How to use
+## Installation
+
+### Via Homebrew (Recommended)
+
+```bash
+brew install huangyxi/homebrew-tap/brew-no-quarantine
+```
+
+### Manual Installation
 
 1. Place the [`bin/brew-no-quarantine`](bin/brew-no-quarantine) script somewhere in your `$PATH`.
 2. Make it executable: `chmod +x brew-no-quarantine`.
 3. Source the desired shell completion script for your environment (Bash, Zsh, Fish, or PowerShell) from the `completions/` folder.
-4. Run `brew-no-quarantine install <cask-name>`, `brew-no-quarantine upgrade`, etc. as you normally would with Homebrew!
+
+## Usage
+
+Run `brew-no-quarantine install <cask-name>`, `brew-no-quarantine upgrade`, etc. as you normally would with Homebrew!
 
 If you really know what you're doing, you can also alias `brew` to `brew-no-quarantine`:
 ```bash
