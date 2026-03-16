@@ -1,22 +1,19 @@
 AllCops:
-  TargetRubyVersion: 3.1
+  TargetRubyVersion: 3.4
   NewCops: enable
   Exclude:
     - "vendor/**/*"
     - "completions/**/*"
 
-# The script uses tabs — match Homebrew's indentation style
 Layout/IndentationStyle:
   EnforcedStyle: tabs
 
 Layout/IndentationWidth:
   Width: 1
 
-# Allow long lines in the help heredoc
 Layout/LineLength:
   Max: 120
 
-# Script-level helpers are allowed to be longer
 Metrics/MethodLength:
   Max: 30
 

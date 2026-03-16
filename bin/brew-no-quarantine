@@ -1,9 +1,18 @@
-#!/usr/bin/env brew ruby --
-
+#!/usr/bin/env ruby --
 # frozen_string_literal: true
 
 # This script intercepts Homebrew commands and automatically removes the
 # quarantine attribute from installed App bundles, preventing the "App is damaged" macOS error.
+
+unless defined?(HOMEBREW_VERSION)
+	# We are not running under 'brew ruby'. Re-execute with it to get the Homebrew environment.
+	begin
+		script_path = defined?(Gem) ? Gem.bin_path('brew-no-quarantine', 'brew-no-quarantine') : __FILE__
+		exec 'brew', 'ruby', '--', script_path, *ARGV
+	rescue
+		exec 'brew', 'ruby', '--', __FILE__, *ARGV
+	end
+end
 
 require 'cask'
 require 'cask/caskroom'
@@ -17,8 +26,8 @@ module BrewNoQuarantine
 			brew-no-quarantine: A Homebrew wrapper to remove the quarantine attribute.
 
 			This script automatically runs `xattr -d com.apple.quarantine -r` on
-			applications installed or upgraded via Homebrew Cask.  It intercepts
-			`install`,  `reinstall`,  and  `upgrade` commands  to find the exact
+			applications installed or upgraded via Homebrew Cask. It intercepts
+			`install`, `reinstall`, and `upgrade` commands to find the exact
 			installation path of the App bundle.
 
 			For all other commands, it behaves exactly like the standard `brew` command.
@@ -114,4 +123,4 @@ module BrewNoQuarantine
 	end
 end
 
-BrewNoQuarantine.main(*ARGV) if __FILE__ == $0
+BrewNoQuarantine.main(*ARGV)

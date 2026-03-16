@@ -7,7 +7,7 @@ export HOMEBREW_NO_INSTALL_CLEANUP=1
 export HOMEBREW_NO_ENV_HINTS=1
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BNQ="$(cd "$SCRIPT_DIR/.." && pwd)/brew-no-quarantine"
+BNQ="$(cd "$SCRIPT_DIR/.." && pwd)/bin/brew-no-quarantine"
 
 PASS=0
 FAIL=0
