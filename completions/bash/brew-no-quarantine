@@ -1,0 +1,19 @@
+# bash completion for brew-no-quarantine
+
+_brew_no_quarantine() {
+	if type _brew &>/dev/null; then
+		local cmd="brew"
+
+		if [[ "${COMP_WORDS[0]}" == "brew-no-quarantine" ]]; then
+			COMP_WORDS[0]="$cmd"
+		fi
+
+		if [[ -n "${COMP_LINE}" ]]; then
+			COMP_LINE="${COMP_LINE/brew-no-quarantine/$cmd}"
+		fi
+
+		_brew "$@"
+	fi
+}
+
+complete -o bashdefault -o default -F _brew_no_quarantine brew-no-quarantine 2>/dev/null || complete -o default -o nospace -F _brew_no_quarantine brew-no-quarantine

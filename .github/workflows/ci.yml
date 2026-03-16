@@ -1,0 +1,45 @@
+name: CI
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  syntax:
+    name: Syntax Check
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Ruby syntax
+        run: ruby -c brew-no-quarantine
+  lint:
+    name: RuboCop Lint
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+      - name: Run RuboCop
+        run: bundle exec rubocop --format github
+  test:
+    name: Integration Tests
+    runs-on: macos-latest
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+      HOMEBREW_NO_INSTALL_CLEANUP: "1"
+      HOMEBREW_NO_ENV_HINTS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update Homebrew
+        run: brew update
+      - name: Run integration tests
+        run: ./test/main.sh

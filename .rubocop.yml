@@ -1,0 +1,42 @@
+AllCops:
+  TargetRubyVersion: 3.1
+  NewCops: enable
+  Exclude:
+    - "vendor/**/*"
+    - "completions/**/*"
+
+# The script uses tabs — match Homebrew's indentation style
+Layout/IndentationStyle:
+  EnforcedStyle: tabs
+
+# Layout/IndentationWidth:
+#   Width: 1
+
+# Allow long lines in the help heredoc
+Layout/LineLength:
+  Max: 120
+
+# Script-level helpers are allowed to be longer
+Metrics/MethodLength:
+  Max: 30
+
+Metrics/AbcSize:
+  Max: 30
+
+Metrics/CyclomaticComplexity:
+  Max: 10
+
+Metrics/PerceivedComplexity:
+  Max: 10
+
+# `rescue => e` with unused binding is valid Ruby; allow bare rescue too
+Style/RescueStandardError:
+  EnforcedStyle: implicit
+
+# No top-level class/module documentation needed in a script
+Style/Documentation:
+  Enabled: false
+
+# $? for child process exit status is idiomatic in system-call scripts
+Style/SpecialGlobalVars:
+  Enabled: false

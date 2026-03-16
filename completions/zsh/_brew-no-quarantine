@@ -1,0 +1,10 @@
+#compdef brew-no-quarantine
+# zsh completion for brew-no-quarantine
+
+if (( $+functions[_brew] )); then
+	_brew "$@"
+else
+	if autoload -U _brew >/dev/null 2>&1; then
+		_brew "$@"
+	fi
+fi
