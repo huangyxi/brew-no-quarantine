@@ -14,16 +14,16 @@ module BrewNoQuarantine
 
 	def print_help_and_exit(command_args)
 		puts <<~HELP
-    brew-no-quarantine: A Homebrew wrapper to remove the quarantine attribute.
+			brew-no-quarantine: A Homebrew wrapper to remove the quarantine attribute.
 
-    This script automatically runs `xattr -d com.apple.quarantine -r` on
-    applications installed or upgraded via Homebrew Cask.  It intercepts
-    `install`,  `reinstall`,  and  `upgrade` commands  to find the exact
-    installation path of the App bundle.
+			This script automatically runs `xattr -d com.apple.quarantine -r` on
+			applications installed or upgraded via Homebrew Cask.  It intercepts
+			`install`,  `reinstall`,  and  `upgrade` commands  to find the exact
+			installation path of the App bundle.
 
-    For all other commands, it behaves exactly like the standard `brew` command.
+			For all other commands, it behaves exactly like the standard `brew` command.
 
-    --------------------------------------------------------------------------------
+			--------------------------------------------------------------------------------
 		HELP
 		system(HOMEBREW_BREW_FILE, *command_args)
 		exit $?.exitstatus

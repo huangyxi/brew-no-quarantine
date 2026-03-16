@@ -52,7 +52,7 @@ report() {
 			red "  ✗ FAIL: ${prefix}${msg}"
 			((FAIL+=1))
 			if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
-				echo "::error file=$(basename "$0")::Test Fail: ${prefix}${msg}"
+				echo "::error::Test Fail: ${prefix}${msg}"
 			fi
 			;;
 		"info")

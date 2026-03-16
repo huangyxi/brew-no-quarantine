@@ -8,7 +8,7 @@ init_test
 
 print_group "upgrade"
 
-test "upgrade explicit <cask>"
+print_test "upgrade explicit <cask>"
 brew install --cask "$TEST_CASK"
 [[ -d "$TEST_APP" ]] && add_quarantine "$TEST_APP"
 

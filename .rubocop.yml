@@ -9,8 +9,8 @@ AllCops:
 Layout/IndentationStyle:
   EnforcedStyle: tabs
 
-# Layout/IndentationWidth:
-#   Width: 1
+Layout/IndentationWidth:
+  Width: 1
 
 # Allow long lines in the help heredoc
 Layout/LineLength:
