@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby --
+#!/usr/bin/env brew ruby --
 # frozen_string_literal: true
 
 # This script intercepts Homebrew commands and automatically removes the
