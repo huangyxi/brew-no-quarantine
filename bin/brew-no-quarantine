@@ -18,21 +18,25 @@ require 'cask'
 require 'cask/caskroom'
 require 'cask/cask_loader'
 
+require 'utils/output'
+
 module BrewNoQuarantine
+	extend Utils::Output::Mixin
+
 	module_function
 
 	def print_help_and_exit(command_args)
 		puts <<~HELP
-			brew-no-quarantine: A Homebrew wrapper to remove the quarantine attribute.
+			brew-no-quarantine:  Homebrew wrapper to remove quarantine attribute
 
 			This script automatically runs `xattr -d com.apple.quarantine -r` on
-			applications installed or upgraded via Homebrew Cask. It intercepts
-			`install`, `reinstall`, and `upgrade` commands to find the exact
+			applications installed  or upgraded via Homebrew Cask. It intercepts
+			`install`,  `reinstall`,  and  `upgrade`  commands to find the exact
 			installation path of the App bundle.
 
-			For all other commands, it behaves exactly like the standard `brew` command.
+			For all other commands,  it behaves same as standard `brew` command.
 
-			--------------------------------------------------------------------------------
+			--------------------------------------------------------------------
 		HELP
 		system(HOMEBREW_BREW_FILE, *command_args)
 		exit $?.exitstatus
@@ -42,14 +46,12 @@ module BrewNoQuarantine
 		cmd = command_args.first
 		is_upgrade = cmd == 'upgrade'
 		potential_targets = command_args[1..].reject { |arg| arg.start_with?('-') }
-
 		if is_upgrade && potential_targets.empty?
 			greedy = command_args.intersect?(%w[--greedy -g])
 			greedy_latest = command_args.include?('--greedy-latest')
 			greedy_auto_updates = command_args.include?('--greedy-auto-updates')
-
-			outdated_casks = Cask::Caskroom.casks.select do |c|
-				c.outdated?(greedy: greedy, greedy_latest: greedy_latest, greedy_auto_updates: greedy_auto_updates)
+			outdated_casks = Cask::Caskroom.casks.select do |cask|
+				cask.outdated?(greedy: greedy, greedy_latest: greedy_latest, greedy_auto_updates: greedy_auto_updates)
 			end
 			outdated_casks.map(&:token)
 		else
@@ -59,38 +61,49 @@ module BrewNoQuarantine
 
 	def record_apps_state(targets)
 		target_apps = {}
-
 		targets.each do |target_name|
 			cask = Cask::CaskLoader.load(target_name)
 			apps = cask.artifacts.grep(Cask::Artifact::App)
 			apps.each do |app|
 				path = app.target
-				target_apps[path] = path.exist? ? path.ctime : nil
+				target_apps[target_name] = {
+					path: path,
+					ctime: path.exist? ? path.ctime : nil
+				}
 			end
 		rescue => e
-			warn "brew-no-quarantine: could not load cask '#{target_name}': #{e.message}"
+			opoo "brew-no-quarantine: could not load cask '#{target_name}': #{e.message}"
 		end
 
 		target_apps
 	end
 
 	def remove_quarantine(target_apps, opts)
-		if opts[:dry_run]
-			puts "==> Would remove quarantine attribute from #{target_apps.size} items:"
-			target_apps.each_key do |path|
-				puts "\t#{path}"
+		dry_run = opts[:dry_run]
+		unless dry_run
+			target_apps.filter! do |_, info|
+				path = info[:path]
+				next unless path.exist?
+
+				pre_ctime = info[:ctime]
+				next unless pre_ctime.nil? || pre_ctime != path.ctime
+
+				true
 			end
+		end
+		target_size = target_apps.size
+		if target_size.zero?
+			ohai 'No items to remove quarantine attribute'
 			return
 		end
 
-		target_apps.each do |path, pre_ctime|
-			next unless path.exist?
-
-			current_ctime = path.ctime
-			next unless pre_ctime.nil? || pre_ctime != current_ctime
-
-			puts "==> Removing quarantine attribute from #{path}"
-			system('xattr', '-d', 'com.apple.quarantine', '-r', path.to_s, err: '/dev/null')
+		verb = dry_run ? 'Would remove' : 'Removing'
+		ohai(
+			"#{verb} quarantine attribute from #{target_size} item(s):",
+			*target_apps.map { |target_name, info| "#{target_name} -> #{info[:path]}" }
+		)
+		target_apps.each_value do |info|
+			system('xattr', '-d', 'com.apple.quarantine', '-r', info[:path].to_s, err: '/dev/null')
 		end
 	end
 
@@ -102,7 +115,6 @@ module BrewNoQuarantine
 
 	def main(*command_args)
 		cmd = command_args.first
-
 		help_flags = %w[--help -h]
 		print_help_and_exit(command_args) if command_args.empty? || command_args.intersect?(help_flags) || cmd == 'help'
 
@@ -113,7 +125,6 @@ module BrewNoQuarantine
 
 		targets = get_targets(command_args)
 		target_apps = record_apps_state(targets)
-
 		success = system(HOMEBREW_BREW_FILE, *command_args)
 		exit exit_status(success) if !success || target_apps.empty?
 
