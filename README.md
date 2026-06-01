@@ -14,6 +14,7 @@ This script behaves exactly like the standard `brew` command for almost all oper
 ### Via Homebrew (Recommended)
 
 ```bash
+brew trust --tap huangyxi/tap
 brew install huangyxi/tap/brew-no-quarantine
 ```
 
