@@ -42,11 +42,11 @@ module BrewNoQuarantine
 		exit $?.exitstatus
 	end
 
-	def get_targets(command_args)
+	def get_casks(command_args)
 		cmd = command_args.first
 		is_upgrade = cmd == 'upgrade'
-		potential_targets = command_args[1..].reject { |arg| arg.start_with?('-') }
-		if is_upgrade && potential_targets.empty?
+		potential_casks = command_args[1..].reject { |arg| arg.start_with?('-') }
+		if is_upgrade && potential_casks.empty?
 			greedy = command_args.intersect?(%w[--greedy -g])
 			greedy_latest = command_args.include?('--greedy-latest')
 			greedy_auto_updates = command_args.include?('--greedy-auto-updates')
@@ -55,33 +55,33 @@ module BrewNoQuarantine
 			end
 			outdated_casks.map(&:token)
 		else
-			potential_targets
+			potential_casks
 		end
 	end
 
-	def record_apps_state(targets)
-		target_apps = {}
-		targets.each do |target_name|
-			cask = Cask::CaskLoader.load(target_name)
+	def record_casks_state(casks)
+		cask_paths = {}
+		casks.each do |cask_name|
+			cask = Cask::CaskLoader.load(cask_name)
 			apps = cask.artifacts.grep(Cask::Artifact::App)
 			apps.each do |app|
-				path = app.target
-				target_apps[target_name] = {
+				path = app.cask
+				cask_paths[cask_name] = {
 					path: path,
 					ctime: path.exist? ? path.ctime : nil
 				}
 			end
 		rescue => e
-			opoo "brew-no-quarantine: could not load cask '#{target_name}': #{e.message}"
+			opoo "brew-no-quarantine: could not load cask '#{cask_name}': #{e.message}"
 		end
 
-		target_apps
+		cask_paths
 	end
 
-	def remove_quarantine(target_apps, opts)
+	def remove_quarantine(cask_paths, opts)
 		dry_run = opts[:dry_run]
 		unless dry_run
-			target_apps.filter! do |_, info|
+			cask_paths.filter! do |_, info|
 				path = info[:path]
 				next unless path.exist?
 
@@ -91,18 +91,18 @@ module BrewNoQuarantine
 				true
 			end
 		end
-		target_size = target_apps.size
-		if target_size.zero?
+		cask_size = cask_paths.size
+		if cask_size.zero?
 			ohai 'No items to remove quarantine attribute'
 			return
 		end
 
 		verb = dry_run ? 'Would remove' : 'Removing'
 		ohai(
-			"#{verb} quarantine attribute from #{target_size} item(s):",
-			*target_apps.map { |target_name, info| "#{target_name} -> #{info[:path]}" }
+			"#{verb} quarantine attribute from #{cask_size} item(s):",
+			*cask_paths.map { |cask_name, info| "#{cask_name} -> #{info[:path]}" }
 		)
-		target_apps.each_value do |info|
+		cask_paths.each_value do |info|
 			system('xattr', '-d', 'com.apple.quarantine', '-r', info[:path].to_s, err: '/dev/null')
 		end
 	end
@@ -123,14 +123,14 @@ module BrewNoQuarantine
 			exit exit_status(success)
 		end
 
-		targets = get_targets(command_args)
-		target_apps = record_apps_state(targets)
+		casks = get_casks(command_args)
+		cask_paths = record_casks_state(casks)
 		success = system(HOMEBREW_BREW_FILE, *command_args)
-		exit exit_status(success) if !success || target_apps.empty?
+		exit exit_status(success) if !success || cask_paths.empty?
 
 		dry_run_flags = %w[--dry-run -n]
 		opts = command_args.intersect?(dry_run_flags) ? { dry_run: true } : {}
-		remove_quarantine(target_apps, opts)
+		remove_quarantine(cask_paths, opts)
 	end
 end
 
